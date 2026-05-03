@@ -26,7 +26,7 @@ const Header = ({ user, userProfile, activeTab, setActiveTab, setIsAuthModalOpen
 
     <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none">
       <img
-        src="/logo.png"
+        src="/nalewki_logo.jpg"
         alt="Nalewkarz Master"
         className="logo-img h-8 w-auto"
       />

@@ -11,10 +11,10 @@ const CALCULATORS = [
     description: 'Receptury nalewek i nastawów',
     active: true,
     hasBanner: true,
-    banner: '/nalewki.png',
+    logoOnly: true,
+    logo: '/nalewki_logo.jpg',
     bannerTitle: 'Nalewkarz Master',
     bannerSub: 'Receptury nalewkarskie',
-    logo: '/logo.png',
     buttonColor: '#7c3aed',
   },
   {
@@ -22,10 +22,10 @@ const CALCULATORS = [
     name: 'Masarski Master',
     description: 'Receptury mięsne i wędliniarskie',
     hasBanner: true,
-    banner: '/masarz-banner.jpg',
+    banner: '/masarz_banner.jpg',
     bannerTitle: 'Masarski Master',
     bannerSub: 'Receptury mięsne',
-    logo: '/logo_masarz.svg',
+    logo: '/masarz_logo.png',
     url: 'https://www.masarz.ebra.pl',
     buttonColor: '#DC2626',
   },
@@ -34,10 +34,10 @@ const CALCULATORS = [
     name: 'Piekarski Mistrz',
     description: 'Domowe receptury pieczywa',
     hasBanner: true,
-    banner: '/banner_piekarz.png',
+    banner: '/piekarz_baner.png',
     bannerTitle: 'Piekarski Mistrz',
     bannerSub: 'Receptury piekarskie i zakwasy',
-    logo: '/logo_piekarz.png',
+    logo: '/piekarz_logo.png',
     url: 'https://www.piekarz.ebra.pl',
     buttonColor: '#c8860a',
   },
@@ -123,36 +123,59 @@ const HomeScreen = ({ setActiveTab, ads }) => {
               >
                 {calc.hasBanner ? (
                   <div className="relative w-full overflow-hidden" style={{ height: '200px' }}>
-                    <img
-                      src={calc.banner}
-                      alt={calc.name}
-                      className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-                        isClickable ? (calc.active ? 'group-hover:scale-105' : '') : 'grayscale'
-                      }`}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
-                    {calc.logo && (
-                      <img
-                        src={calc.logo}
-                        alt="Logo"
-                        className="absolute top-4 left-1/2 -translate-x-1/2 drop-shadow z-10"
-                        style={{ width: 60, height: 60, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-                      />
-                    )}
-                    <div className="absolute inset-0 flex flex-col justify-center px-7 gap-1">
-                      <p className="text-2xl font-black uppercase italic tracking-tighter text-white leading-none drop-shadow">
-                        {calc.bannerTitle}
-                      </p>
-                      <p className="text-sm text-slate-300 font-medium">{calc.bannerSub}</p>
-                      <span
-                        className="mt-3 self-start text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest text-white"
-                        style={isClickable
-                          ? { backgroundColor: calc.buttonColor }
-                          : { backgroundColor: 'var(--bg-input)', color: 'var(--text-dim)' }}
+                    {calc.logoOnly ? (
+                      <div
+                        className="absolute inset-0 flex flex-col items-center justify-center gap-2"
+                        style={{ background: 'linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%)' }}
                       >
-                        {isClickable ? 'Otwórz' : 'Wkrótce'}
-                      </span>
-                    </div>
+                        <img src={calc.logo} alt={calc.name} className="logo-img h-16 w-auto mx-auto mb-3" />
+                        <p className="text-2xl font-black uppercase italic tracking-tighter text-white leading-none drop-shadow">
+                          {calc.bannerTitle}
+                        </p>
+                        <p className="text-sm text-slate-300 font-medium">{calc.bannerSub}</p>
+                        <span
+                          className="mt-2 text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest text-white"
+                          style={isClickable
+                            ? { backgroundColor: calc.buttonColor }
+                            : { backgroundColor: 'var(--bg-input)', color: 'var(--text-dim)' }}
+                        >
+                          {isClickable ? 'Otwórz' : 'Wkrótce'}
+                        </span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={calc.banner}
+                          alt={calc.name}
+                          className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
+                            isClickable ? (calc.active ? 'group-hover:scale-105' : '') : 'grayscale'
+                          }`}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
+                        {calc.logo && (
+                          <img
+                            src={calc.logo}
+                            alt="Logo"
+                            className="absolute top-4 left-1/2 -translate-x-1/2 drop-shadow z-10"
+                            style={{ width: 60, height: 60, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+                          />
+                        )}
+                        <div className="absolute inset-0 flex flex-col justify-center px-7 gap-1">
+                          <p className="text-2xl font-black uppercase italic tracking-tighter text-white leading-none drop-shadow">
+                            {calc.bannerTitle}
+                          </p>
+                          <p className="text-sm text-slate-300 font-medium">{calc.bannerSub}</p>
+                          <span
+                            className="mt-3 self-start text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest text-white"
+                            style={isClickable
+                              ? { backgroundColor: calc.buttonColor }
+                              : { backgroundColor: 'var(--bg-input)', color: 'var(--text-dim)' }}
+                          >
+                            {isClickable ? 'Otwórz' : 'Wkrótce'}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <>

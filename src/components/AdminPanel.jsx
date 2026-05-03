@@ -170,13 +170,14 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
     URL.revokeObjectURL(url);
   };
 
-  const DEFAULT_CATEGORIES = ['Owocowa', 'Ziołowa', 'Korzenna', 'Miodowa', 'Wiśniowa', 'Śliwkowa', 'Likiery', 'Inne'];
+  const DEFAULT_CATEGORIES = ['Owocowa', 'Ziołowa', 'Korzenna', 'Miodowa', 'Wiśniowa', 'Śliwkowa', 'Tradycyjna', 'Inne'];
 
   const sortedCategories = [...(categories || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const handleAddCategory = async () => {
     const name = newCatName.trim();
     if (!name) return;
+    console.log('[handleAddCategory] dodaję kategorię:', name, 'do kolekcji:', COL_CATEGORIES);
     await addDoc(collection(db, COL_CATEGORIES), { name, order: (categories || []).length });
     setNewCatName('');
   };
@@ -195,14 +196,17 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
   };
 
   const handleInitDefault = async () => {
-    if (!window.confirm('Dodać domyślne kategorie? Istniejące nie zostaną usunięte.')) return;
-    const existing = (categories || []).map(c => c.name);
-    let order = (categories || []).length;
-    for (const name of DEFAULT_CATEGORIES) {
-      if (!existing.includes(name)) {
-        await addDoc(collection(db, COL_CATEGORIES), { name, order: order++ });
-      }
+    const snap = await getDocs(collection(db, COL_CATEGORIES));
+    if (!snap.empty) {
+      alert('Kategorie już istnieją!');
+      return;
     }
+    if (!window.confirm('Dodać domyślne kategorie?')) return;
+    await Promise.all(
+      DEFAULT_CATEGORIES.map((name, i) =>
+        addDoc(collection(db, COL_CATEGORIES), { name, order: i })
+      )
+    );
   };
 
   const inputCls = "w-full p-3 border border-[var(--border)] rounded-xl font-bold bg-[var(--bg)] text-[var(--text)] placeholder-[var(--text-dim)] focus:border-violet-500 outline-none text-sm";
