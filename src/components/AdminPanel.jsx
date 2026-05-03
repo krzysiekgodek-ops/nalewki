@@ -68,6 +68,10 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
   const [adForm, setAdForm]         = useState(EMPTY_AD);
   const [uploadingImg, setUploadingImg] = useState(false);
 
+  const [newCatName, setNewCatName]       = useState('');
+  const [editingCatId, setEditingCatId]   = useState(null);
+  const [editingCatName, setEditingCatName] = useState('');
+
   const now = Date.now();
   const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
 
@@ -166,13 +170,49 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
     URL.revokeObjectURL(url);
   };
 
+  const DEFAULT_CATEGORIES = ['Owocowa', 'Ziołowa', 'Korzenna', 'Miodowa', 'Wiśniowa', 'Śliwkowa', 'Likiery', 'Inne'];
+
+  const sortedCategories = [...(categories || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+  const handleAddCategory = async () => {
+    const name = newCatName.trim();
+    if (!name) return;
+    await addDoc(collection(db, COL_CATEGORIES), { name, order: (categories || []).length });
+    setNewCatName('');
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Usunąć kategorię?')) return;
+    await deleteDoc(doc(db, COL_CATEGORIES, id));
+  };
+
+  const handleSaveEdit = async (id) => {
+    const name = editingCatName.trim();
+    if (!name) { setEditingCatId(null); return; }
+    await updateDoc(doc(db, COL_CATEGORIES, id), { name });
+    setEditingCatId(null);
+    setEditingCatName('');
+  };
+
+  const handleInitDefault = async () => {
+    if (!window.confirm('Dodać domyślne kategorie? Istniejące nie zostaną usunięte.')) return;
+    const existing = (categories || []).map(c => c.name);
+    let order = (categories || []).length;
+    for (const name of DEFAULT_CATEGORIES) {
+      if (!existing.includes(name)) {
+        await addDoc(collection(db, COL_CATEGORIES), { name, order: order++ });
+      }
+    }
+  };
+
   const inputCls = "w-full p-3 border border-[var(--border)] rounded-xl font-bold bg-[var(--bg)] text-[var(--text)] placeholder-[var(--text-dim)] focus:border-violet-500 outline-none text-sm";
   const ACCENT = 'violet-600';
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'users',     label: 'Użytkownicy' },
-    { id: 'ads',       label: 'Reklamy' },
+    { id: 'dashboard',  label: 'Dashboard' },
+    { id: 'users',      label: 'Użytkownicy' },
+    { id: 'ads',        label: 'Reklamy' },
+    { id: 'categories', label: 'Kategorie' },
   ];
 
   return (
@@ -562,6 +602,84 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* KATEGORIE */}
+      {adminSubTab === 'categories' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-dim)]">
+              {sortedCategories.length} kategorii
+            </p>
+            <button
+              onClick={handleInitDefault}
+              className="flex items-center gap-2 px-5 py-3 bg-[var(--bg-input)] text-[var(--text-dim)] rounded-2xl text-xs font-black uppercase hover:opacity-70 transition-all border border-[var(--border)]"
+            >
+              <Plus size={13} /> Inicjuj domyślne
+            </button>
+          </div>
+
+          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-dim)] mb-4">Nowa kategoria</p>
+            <div className="flex gap-2">
+              <input
+                className={inputCls}
+                placeholder="Nazwa kategorii..."
+                value={newCatName}
+                onChange={e => setNewCatName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddCategory()}
+              />
+              <button
+                onClick={handleAddCategory}
+                className="flex items-center gap-2 px-5 py-3 bg-violet-600 text-white rounded-2xl text-xs font-black uppercase hover:bg-violet-700 transition-all shrink-0 shadow-lg"
+              >
+                <Plus size={14} /> Dodaj
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-3xl p-6">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-dim)] mb-4">Lista kategorii</p>
+            {sortedCategories.length === 0 ? (
+              <p className="text-xs text-[var(--text-dim)] font-bold uppercase text-center py-8">Brak kategorii — kliknij "Inicjuj domyślne"</p>
+            ) : (
+              <div className="divide-y divide-[var(--border)]">
+                {sortedCategories.map((cat, idx) => (
+                  <div key={cat.id} className="flex items-center gap-3 py-3">
+                    <span className="text-[10px] font-black text-[var(--text-dim)] w-6 text-right shrink-0">{idx + 1}.</span>
+                    {editingCatId === cat.id ? (
+                      <input
+                        autoFocus
+                        className="flex-1 p-2 border border-violet-500 rounded-xl font-bold bg-[var(--bg)] text-[var(--text)] outline-none text-sm"
+                        value={editingCatName}
+                        onChange={e => setEditingCatName(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') handleSaveEdit(cat.id);
+                          if (e.key === 'Escape') { setEditingCatId(null); setEditingCatName(''); }
+                        }}
+                        onBlur={() => handleSaveEdit(cat.id)}
+                      />
+                    ) : (
+                      <span
+                        className="flex-1 text-sm font-bold text-[var(--text)] cursor-pointer hover:text-violet-400 transition-colors"
+                        title="Kliknij, aby edytować"
+                        onClick={() => { setEditingCatId(cat.id); setEditingCatName(cat.name); }}
+                      >
+                        {cat.name}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => handleDeleteCategory(cat.id)}
+                      className="p-2 text-[var(--text-dim)] hover:text-red-500 transition-colors shrink-0"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
