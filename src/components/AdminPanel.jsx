@@ -182,21 +182,37 @@ const AdminPanel = ({ allUsers, categories, ads, allRecipes = [], updatePlayerPl
   const addCategory = async () => {
     const name = newCatName.trim();
     if (!name) return;
-    await addDoc(collection(db, COL_CATEGORIES), { name, order: localCategories.length });
-    setNewCatName('');
+    try {
+      console.log('addCategory:', name, 'col:', COL_CATEGORIES);
+      await addDoc(collection(db, COL_CATEGORIES), { name, order: localCategories.length });
+      setNewCatName('');
+    } catch (err) {
+      console.error('Błąd dodawania kategorii:', err);
+      alert('Błąd: ' + err.message);
+    }
   };
 
   const deleteCategory = async (id) => {
-    await deleteDoc(doc(db, COL_CATEGORIES, id));
+    try {
+      await deleteDoc(doc(db, COL_CATEGORIES, id));
+    } catch (err) {
+      console.error('Błąd usuwania kategorii:', err);
+      alert('Błąd: ' + err.message);
+    }
   };
 
   const initCategories = async () => {
-    const snap = await getDocs(collection(db, COL_CATEGORIES));
-    if (!snap.empty) { alert('Kategorie już istnieją!'); return; }
-    const defaults = ['Owocowa', 'Ziołowa', 'Korzenna', 'Miodowa', 'Wiśniowa', 'Śliwkowa', 'Tradycyjna', 'Inne'];
-    await Promise.all(defaults.map((name, i) =>
-      addDoc(collection(db, COL_CATEGORIES), { name, order: i })
-    ));
+    try {
+      const snap = await getDocs(collection(db, COL_CATEGORIES));
+      if (!snap.empty) { alert('Kategorie już istnieją!'); return; }
+      const defaults = ['Owocowa', 'Ziołowa', 'Korzenna', 'Miodowa', 'Wiśniowa', 'Śliwkowa', 'Tradycyjna', 'Inne'];
+      await Promise.all(defaults.map((name, i) =>
+        addDoc(collection(db, COL_CATEGORIES), { name, order: i })
+      ));
+    } catch (err) {
+      console.error('Błąd inicjalizacji kategorii:', err);
+      alert('Błąd: ' + err.message);
+    }
   };
 
   const inputCls = "w-full p-3 border border-[var(--border)] rounded-xl font-bold bg-[var(--bg)] text-[var(--text)] placeholder-[var(--text-dim)] focus:border-violet-500 outline-none text-sm";
