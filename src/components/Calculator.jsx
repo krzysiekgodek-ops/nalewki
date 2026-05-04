@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Plus, Trash2, Printer, AlertTriangle, FlaskConical, Droplets, Grape, Candy } from 'lucide-react';
+import { Plus, Trash2, Printer, AlertTriangle, FlaskConical, Droplets, Grape, Candy, BookmarkPlus } from 'lucide-react';
 
 const FRUITS = [
   { name: 'Wiśnie',            yield: 65 },
@@ -35,7 +35,7 @@ const DEFAULT_STATE = {
   scale: 1,
 };
 
-const Calculator = ({ recipe }) => {
+const Calculator = ({ recipe, onSaveAsNew }) => {
   const [state, setState] = useState(() => {
     if (recipe) {
       return {
@@ -283,6 +283,15 @@ const Calculator = ({ recipe }) => {
               <Printer size={12} /> Drukuj
             </button>
           </div>
+
+          {onSaveAsNew && (
+            <button
+              onClick={() => onSaveAsNew(state)}
+              className="w-full mb-4 py-3 flex items-center justify-center gap-2 bg-[var(--bg)] border border-violet-500/40 text-violet-400 hover:bg-violet-600 hover:text-white rounded-xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95"
+            >
+              <BookmarkPlus size={14} /> Zapisz jako nową recepturę
+            </button>
+          )}
 
           {calc.warning && (
             <div className="flex items-center gap-2 p-3 bg-orange-900/20 border border-orange-500/30 rounded-xl mb-4 text-xs font-bold text-orange-400">

@@ -156,3 +156,24 @@ firebase deploy --only firestore:rules   # from masarz-claude/
 ## Admin
 
 Superadmin: `krzysiekgodek@gmail.com` (hardcoded in `firestore.rules` and `firebase.js`).
+
+## Znane pułapki (UI)
+
+### Klasa `logo-img` w `src/index.css`
+```css
+.logo-img { filter: brightness(0) invert(1); }
+[data-theme="light"] .logo-img { filter: brightness(0) invert(0); }
+```
+Klasa ta zamienia logo na jednolity biały (dark mode) lub czarny (light mode) prostokąt.
+Działa poprawnie tylko dla obrazów PNG z przezroczystym tłem (np. masarz_logo.png).
+**Nie używaj `logo-img` dla `nalewki_logo.jpg`** — ten plik ma ciemne tło i musi renderować się naturalnie.
+W `Header.jsx` logo nalewki używa klasy `h-8 w-auto rounded` (bez `logo-img`).
+
+### HomeScreen — karty kalkulatorów
+- Wysokość baneru: `h-48`
+- Logo: `absolute top-3 h-14 w-14 object-contain drop-shadow-lg`, wyśrodkowane w `left: 25%` via `transform: translateX(-50%)`
+- Napis: `absolute left-0 right-0 px-4`, `top: 108px` (= 12px + 56px logo + 40px odstęp)
+- Nazwa: `text-2xl font-extrabold drop-shadow leading-tight`
+- Opis: `text-base text-white/80 mt-1`
+- Nalewki otwierają wewnętrzną zakładkę `recipes` (`tab: 'recipes'`, bez `url`)
+- Masarski i Piekarski otwierają zewnętrzne linki z `#receptury`

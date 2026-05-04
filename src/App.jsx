@@ -8,12 +8,13 @@ import Header      from './components/Header';
 import BottomNav   from './components/BottomNav';
 import AuthModal   from './components/AuthModal';
 import RecipeModal from './components/RecipeModal';
-import RecipeList  from './components/RecipeList';
-import Calculator  from './components/Calculator';
-import ClientPanel from './components/ClientPanel';
-import AdminPanel  from './components/AdminPanel';
-import HomeScreen  from './components/HomeScreen';
-import MyRecipes   from './components/MyRecipes';
+import RecipeList   from './components/RecipeList';
+import RecipeDetail  from './components/RecipeDetail';
+import Calculator   from './components/Calculator';
+import ClientPanel  from './components/ClientPanel';
+import AdminPanel   from './components/AdminPanel';
+import HomeScreen   from './components/HomeScreen';
+import MyRecipes    from './components/MyRecipes';
 
 const DEFAULT_PLANS = {
   food: {
@@ -134,10 +135,42 @@ const App = () => {
     return () => { unsubRecipes(); unsubCats(); };
   }, [user]);
 
-  // Kliknięcie receptury → kalkulator
+  // Kliknięcie receptury → widok szczegółów
   const handleSelectRecipe = (recipe) => {
     setSelectedKey(recipe.id);
+    setActiveTab('recipe-detail');
+  };
+
+  // Z widoku szczegółów → kalkulator (modyfikacja)
+  const handleModifyRecipe = () => {
     setActiveTab('calculator');
+  };
+
+  // Z kalkulatora → nowa receptura (ze zmodyfikowanymi danymi + oryginalną procedurą)
+  const handleSaveAsNew = (calcState) => {
+    const source = recipes[selectedKey] ?? null;
+    const preFilled = {
+      // brak id → nowa receptura
+      name:              '',
+      category:          source?.category || '',
+      spirit_volume:     Number(calcState.spirit),
+      target_strength:   Number(calcState.targetMoc),
+      fruits:            calcState.fruits.map(f => ({
+        name:           f.name,
+        weight_g:       Number(f.weight),
+        juice_yield_pct: Number(f.yieldPct),
+      })),
+      spices:            source?.spices || [],
+      sugar_g:           Number(calcState.sugar),
+      water_syrup_ml:    Number(calcState.wSyrup),
+      maceration_days:   Number(calcState.macerationDays),
+      maceration_temp_c: Number(calcState.macerationTemp),
+      aging_days:        Number(calcState.agingDays),
+      imageUrl:          '',
+      tech:              source?.tech || '',
+    };
+    setRecipeToEdit(preFilled);
+    setIsRecipeModalOpen(true);
   };
 
   // Toggle ulubionej
@@ -176,6 +209,7 @@ const App = () => {
         spirit_volume:      Number(formRecipe.spirit_volume),
         target_strength:    Number(formRecipe.target_strength),
         fruits:             formRecipe.fruits || [],
+        spices:             formRecipe.spices || [],
         sugar_g:            Number(formRecipe.sugar_g),
         water_syrup_ml:     Number(formRecipe.water_syrup_ml),
         maceration_days:    Number(formRecipe.maceration_days),
@@ -186,6 +220,7 @@ const App = () => {
         calc_final_strength: finalMoc,
         calc_juice_ml:      V_juice,
         imageUrl:           formRecipe.imageUrl || '',
+        tech:               formRecipe.tech || '',
         updatedAt:          serverTimestamp(),
         ownerId:            userProfile?.isAdmin ? 'ADMIN' : user.uid,
       };
@@ -274,6 +309,17 @@ const App = () => {
           />
         )}
 
+        {activeTab === 'recipe-detail' && currentRecipe && (
+          <RecipeDetail
+            recipe={currentRecipe}
+            onBack={() => setActiveTab('recipes')}
+            onModify={handleModifyRecipe}
+            onEdit={openRecipeModal}
+            user={user}
+            userProfile={userProfile}
+          />
+        )}
+
         {activeTab === 'my' && userProfile && (
           <MyRecipes
             user={user}
@@ -293,6 +339,7 @@ const App = () => {
             user={user}
             userProfile={userProfile}
             recipe={currentRecipe}
+            onSaveAsNew={user ? handleSaveAsNew : null}
           />
         )}
 
