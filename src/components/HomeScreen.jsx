@@ -85,12 +85,16 @@ const HomeScreen = ({ setActiveTab, ads }) => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
                 {/* Logo – góra, 1/4 od lewej krawędzi */}
-                <img
-                  src={calc.logo}
-                  alt=""
-                  className="absolute top-3 h-14 w-14 object-contain drop-shadow-lg"
+                <div
+                  className="absolute top-3 h-14 w-14 rounded-xl overflow-hidden shadow-lg"
                   style={{ left: '25%', transform: 'translateX(-50%)' }}
-                />
+                >
+                  <img
+                    src={calc.logo}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
               {/* Napis – 40px odstępu od dołu logo (logo kończy się na 68px → tekst od 108px) */}
               <div className="absolute left-0 right-0 px-4 flex items-start justify-between" style={{ top: '108px' }}>
